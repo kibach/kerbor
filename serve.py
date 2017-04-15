@@ -13,6 +13,18 @@ kerbor_tgs = KerborTicketGrantingServer(us)
 kerbor_service = KerborServiceServer(us)
 
 
+@app.before_request
+def log_request():
+    logfile.write('{} {}\n'.format(request.method, request.path))
+    logfile.write('{}\n\n->\n\n'.format(request.get_data()))
+
+
+@app.after_request
+def log_response(response):
+    logfile.write('{}\n\n---\n\n'.format(response.get_data()))
+    return response
+
+
 @app.route("/")
 def hello():
     resp = make_response("""Kerbor Srv
@@ -60,4 +72,6 @@ def get_me_service():
     return resp
 
 if __name__ == '__main__':
+    logfile = open('reqs.log', 'w')
     app.run()
+    logfile.close()
