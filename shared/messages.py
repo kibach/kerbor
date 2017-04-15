@@ -109,7 +109,7 @@ class TicketMessage(BaseMessage):
     sess_key = ''
 
     def gen_sess_key(self):
-        return base64.urlsafe_b64decode(self._fernet.generate_key())
+        return self._fernet.generate_key()[:32]
 
     def __init__(self, _username, _address, _valid):
         self.username = _username
@@ -179,7 +179,9 @@ class ServiceGrantingMessage(BaseMessage):
         self._set_key(_sess_key)
         t = self._decrypt(self.timestamp)
         try:
-            if int(t) == _expected_time:
+            if int(t) == int(_expected_time):
                 return True
-        finally:
+            else:
+                return False
+        except Exception:
             return False
