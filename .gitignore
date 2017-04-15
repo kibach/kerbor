@@ -90,3 +90,7 @@ ENV/
 
 # PyCharm
 .idea/
+
+# SimpleKV storage
+/.data/
+!/.data/README.md
