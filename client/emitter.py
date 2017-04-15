@@ -25,14 +25,15 @@ class Emitter(object):
         r = requests.post('{}{}'.format(self.remote_url, method), data=data, proxies=self.proxies)
 
         response = None
+        check = False
         if method == 'logmein':
             class_name, response = messages.AuthenticationResponseMessage.deserialize(r.content)
-            assert(class_name == 'AuthenticationResponseMessage')
+            check = class_name == 'AuthenticationResponseMessage'
         elif method == 'getmeticket':
             class_name, response = messages.TicketGrantingMessage.deserialize(r.content)
-            assert (class_name == 'TicketGrantingMessage')
+            check = class_name == 'TicketGrantingMessage'
         elif method == 'getmeservice':
             class_name, response = messages.ServiceGrantingMessage.deserialize(r.content)
-            assert (class_name == 'ServiceGrantingMessage')
+            check = class_name == 'ServiceGrantingMessage'
 
-        return response
+        return check, response
