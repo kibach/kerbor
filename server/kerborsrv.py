@@ -50,6 +50,8 @@ class KerborAuthenticationServer(KerborBaseServer):
             tgs_keys[message.tgs]
         )
 
+        self.user_server.update(user)
+
         self.user_server.associate_tgt(user)
 
         return response
