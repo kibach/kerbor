@@ -1,5 +1,6 @@
 from cryptography.fernet import Fernet
 from storage import DictStorage
+import base64
 
 
 class BaseUserServer(object):
@@ -15,7 +16,7 @@ class User(object):
     perms = []
 
     def _get_key(self):
-        return Fernet.generate_key()
+        return base64.urlsafe_b64decode(Fernet.generate_key())
 
     def __init__(self, _dict):
         if 'username' in _dict:
@@ -62,3 +63,13 @@ class UserServer(BaseUserServer):
             raise TypeError("user must be an instance of User")
 
         self.user_storage.persist('user_' + user.username, user)
+
+    def associate_tgt(self, user):
+        self.user_storage.persist('tgt_' + user.tgt, user.username)
+
+    def resolve_tgt(self, tgt):
+        username = self.user_storage.get('tgt_' + tgt)
+        if username is None:
+            return None
+
+        return self.lookup(username)

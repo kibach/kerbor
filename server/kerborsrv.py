@@ -2,28 +2,35 @@ import messages
 
 
 tgs_keys = {
-    'default': '9xziLRNZuqKUP5TmxIfObNvPQDR2PGw7O5_817IkQDw='
+    'default': '9xziLRNZuqKUP5TmxIfObNvPQDR2PGw7'
 }
 
 
-class KerborAuthenticationServer(object):
+class KerborBaseServer(object):
     user_server = None
+    accepted_message = messages.FailMessage
 
     def __init__(self, _user_server):
         self.user_server = _user_server
 
-    def handle(self, path, message):
+    def handle(self, message):
         if not isinstance(message, basestring):
             raise TypeError("message must be a json-encoded string")
 
-        if path == 'logmein':
-            class_name, message_object = messages.AuthenticateMeMessage.deserialize(message)
-            if class_name != "AuthenticateMeMessage":
-                return messages.FailMessage().serialize()
+        class_name, message_object = self.accepted_message.deserialize(message)
+        if class_name != str(type(self.accepted_message).__name__):
+            return messages.FailMessage().serialize()
 
-            return self.authenticate_user(message_object).serialize()
+        return self.dispatch(message_object).serialize()
 
-    def authenticate_user(self, message):
+    def dispatch(self, message):
+        return messages.FailMessage()
+
+
+class KerborAuthenticationServer(KerborBaseServer):
+    accepted_message = messages.AuthenticateMeMessage
+
+    def dispatch(self, message):
         user = self.user_server.lookup(message.username)
         if user is None:
             return messages.FailMessage()
