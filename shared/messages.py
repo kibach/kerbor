@@ -6,7 +6,7 @@ import base64
 
 
 class BaseMessage(object):
-    _fernet = None
+    _fernet = Fernet
 
     def _set_key(self, key):
         self._fernet = Fernet(base64.urlsafe_b64encode(key))
@@ -15,9 +15,10 @@ class BaseMessage(object):
         return self._fernet.encrypt(message)
 
     def _decrypt(self, message):
-        return self._fernet.decrypt(message)
+        return self._fernet.decrypt(bytes(message))
 
     def serialize(self):
+        # type: () -> basestring
         fields = [('__classname', type(self).__name__)]
         for property_name, value in vars(self).iteritems():
             if not property_name.startswith('_') and not callable(value):
@@ -63,6 +64,10 @@ class AuthenticationResponseMessage(BaseMessage):
         self.session_key = self._encrypt(_sess_key)
         self._set_key(_tgs_key)
         self.tgt = self._encrypt(_tgt)
+
+    def get_sess_key(self, _secret_key):
+        self._set_key(_secret_key)
+        return self._decrypt(self.session_key)
 
 
 class IDMessage(BaseMessage):

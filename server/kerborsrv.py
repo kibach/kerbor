@@ -65,10 +65,10 @@ class KerborTicketGrantingServer(KerborBaseServer):
 
         tgt = message.get_tgt(tgs_keys[self.tgs_key])
         user = self.user_server.resolve_tgt(tgt)
-        id = message.get_id(user.sess_key)
+        _, id_message = message.get_id(user.sess_key)
         current_timestamp = int(time.mktime(datetime.datetime.utcnow().timetuple()))
 
-        if id.username != user.username or abs(id.timestamp - current_timestamp) > 30:
+        if id_message.username != user.username or abs(id_message.timestamp - current_timestamp) > 30:
             return messages.FailMessage()
 
         ticket = messages.TicketMessage(user.username, '127.0.0.1', 86400)
