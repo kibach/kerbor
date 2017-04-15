@@ -16,7 +16,7 @@ class User(object):
     perms = []
 
     def _get_key(self):
-        return base64.urlsafe_b64decode(Fernet.generate_key())
+        return Fernet.generate_key()[:32]
 
     def __init__(self, _dict):
         if 'username' in _dict:

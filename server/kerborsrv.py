@@ -88,11 +88,11 @@ class KerborServiceServer(KerborBaseServer):
     server_key = 'database'
 
     def dispatch(self, message):
-        grant = message.get_grant(server_keys[self.server_key])
-        ticket = grant.get_ticket(server_keys[self.server_key])
+        _, grant = message.get_grant(server_keys[self.server_key])
+        _, ticket = grant.get_ticket(server_keys[self.server_key])
         sess_key = ticket.sess_key
 
-        id = message.get_id(sess_key)
+        _, id = message.get_id(sess_key)
 
         if grant.server != self.server_key:
             return messages.FailMessage()
