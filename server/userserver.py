@@ -1,6 +1,5 @@
 from cryptography.fernet import Fernet
 from storage import DictStorage
-import base64
 
 
 class BaseUserServer(object):

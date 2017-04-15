@@ -1,5 +1,5 @@
 import requests
-from  shared import messages
+from shared import messages
 
 
 class Emitter(object):

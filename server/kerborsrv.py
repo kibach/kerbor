@@ -92,18 +92,18 @@ class KerborServiceServer(KerborBaseServer):
         _, ticket = grant.get_ticket(server_keys[self.server_key])
         sess_key = ticket.sess_key
 
-        _, id = message.get_id(sess_key)
+        _, id_message = message.get_id(sess_key)
 
         if grant.server != self.server_key:
             return messages.FailMessage()
 
         current_timestamp = int(time.mktime(datetime.datetime.utcnow().timetuple()))
 
-        if ticket.remote_address != '127.0.0.1' or current_timestamp - id.timestamp - ticket.valid_for > 30:
+        if ticket.remote_address != '127.0.0.1' or current_timestamp - id_message.timestamp - ticket.valid_for > 30:
             return messages.FailMessage()
 
-        if ticket.username != id.username:
+        if ticket.username != id_message.username:
             return messages.FailMessage()
 
-        response = messages.ServiceGrantingMessage(id.timestamp, sess_key)
+        response = messages.ServiceGrantingMessage(id_message.timestamp, sess_key)
         return response
