@@ -103,11 +103,14 @@ class TicketMessage(BaseMessage):
     valid_for = 0
     sess_key = ''
 
-    def __init__(self, _username, _address, _valid, _sess_key):
+    def gen_sess_key(self):
+        return base64.urlsafe_b64decode(self._fernet.generate_key())
+
+    def __init__(self, _username, _address, _valid):
         self.username = _username
         self.remote_address = _address
         self.valid_for = _valid
-        self.sess_key = _sess_key
+        self.sess_key = self.gen_sess_key()
 
 
 class GrantMessage(BaseMessage):
@@ -148,6 +151,16 @@ class ServiceRequestMessage(BaseMessage):
         self._set_key(_sess_key)
         self.id_message = self._encrypt(_id.serialize())
         self.grant = _grant
+
+    def get_id(self, _sess_key):
+        self._set_key(_sess_key)
+        representation = self._decrypt(self.id_message)
+        return IDMessage.deserialize(representation)
+
+    def get_grant(self, _serv_key):
+        self._set_key(_serv_key)
+        representation = self._decrypt(self.grant)
+        return GrantMessage.deserialize(representation)
 
 
 class ServiceGrantingMessage(BaseMessage):
