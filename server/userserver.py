@@ -1,9 +1,16 @@
 from cryptography.fernet import Fernet
-from storage import DictStorage
+from storage import BaseStorage
+import hmac
 
 
 class BaseUserServer(object):
-    pass
+    user_storage = None
+
+    def __init__(self, _user_storage):
+        if not isinstance(_user_storage, BaseStorage):
+            raise TypeError("_user_storage must be a subclass of BaseStorage")
+
+        self.user_storage = _user_storage
 
 
 class User(object):
@@ -43,18 +50,9 @@ class User(object):
 
 
 class UserServer(BaseUserServer):
-    user_storage = DictStorage()
 
     def lookup(self, username):
         obj = self.user_storage.get('user_' + username)
-        if obj is None:
-            obj = User({
-                'username': username,
-                'password': '123456',
-                'secret_key': 'SECRETsecretSECRETsecret12345678'
-            })
-            self.user_storage.persist('user_' + username, obj)
-
         return obj
 
     def update(self, user):
@@ -72,3 +70,12 @@ class UserServer(BaseUserServer):
             return None
 
         return self.lookup(username)
+
+    def register(self, _username, _password):
+        user = User({
+            'username': _username,
+            'password': _password,
+            'secret_key': hmac.new(bytes(_password), bytes(_username)).hexdigest()
+        })
+
+        self.user_storage.persist('user_' + _username, user)

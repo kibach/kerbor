@@ -1,3 +1,4 @@
+simplekv
 requests
-Flask==0.12.1
-cryptography==1.8.1
+Flask
+cryptography
